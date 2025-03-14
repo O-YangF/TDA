@@ -14,15 +14,20 @@ import clip
 from utils import *
 
 # my experiment 
+# 修改CacheMonitor类
 class CacheMonitor:
     def __init__(self, cache_type, max_history=100):
         self.cache_type = cache_type
         self.history = deque(maxlen=max_history)
         self.entropy_stats = {'max': -np.inf, 'min': np.inf}
-        self.replace_counts = defaultdict(int)
+        self.total_replacements = 0  # 新增累积计数器
         
     def record(self, old_cls, new_cls, old_entropy, new_entropy):
         """记录单次替换事件"""
+        # 仅当发生替换时（old_cls存在）才计数
+        if old_cls is not None:
+            self.total_replacements += 1
+            
         record = {
             'old_class': old_cls,
             'new_class': new_cls,
@@ -32,7 +37,6 @@ class CacheMonitor:
         }
         self.history.append(record)
         self._update_entropy(new_entropy)
-        self.replace_counts[(old_cls, new_cls)] += 1
         
     def _update_entropy(self, entropy):
         self.entropy_stats['max'] = max(self.entropy_stats['max'], entropy)
@@ -43,30 +47,12 @@ class CacheMonitor:
         if not self.history:
             return
         
-        # 记录极值
+        # 记录极值和累积交换次数
         wandb.log({
             f"{self.cache_type}_cache/max_entropy": self.entropy_stats['max'],
-            f"{self.cache_type}_cache/min_entropy": self.entropy_stats['min']
+            f"{self.cache_type}_cache/min_entropy": self.entropy_stats['min'],
+            f"{self.cache_type}_cache/cumulative_replaces": self.total_replacements  # 新增累积曲线
         }, step=step)
-        
-        # 每100步记录详细历史
-        if step % 100 == 0:
-            # 创建替换统计表
-            replace_table = wandb.Table(
-                columns=["Old Class", "New Class", "Count"],
-                data=[[str(k[0]), str(k[1]), v] for k, v in self.replace_counts.items()]
-            )
-            
-            # 创建历史记录表
-            history_table = wandb.Table(
-                columns=list(self.history[0].keys()),
-                data=[list(r.values()) for r in self.history]
-            )
-            
-            wandb.log({
-                f"{self.cache_type}_cache/replace_stats": replace_table,
-                f"{self.cache_type}_cache/replace_history": history_table
-            }, step=step)
 
 
 def get_arguments():
@@ -182,7 +168,6 @@ def run_test_tda(pos_cfg, neg_cfg, loader, clip_model, clip_weights):
             step = i + 1
             wandb.log({
                 "Averaged test accuracy": sum(accuracies)/len(accuracies),
-                "Instant accuracy": acc
             }, step=step)
             
             if pos_monitor:
