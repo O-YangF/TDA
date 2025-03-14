@@ -16,11 +16,12 @@ from utils import *
 # my experiment 
 # 修改CacheMonitor类
 class CacheMonitor:
-    def __init__(self, cache_type, max_history=100):
+    def __init__(self, cache_type, dataset_name, max_history=100):  # 新增dataset_name参数
         self.cache_type = cache_type
+        self.dataset_name = dataset_name  # 记录数据集名称
         self.history = deque(maxlen=max_history)
         self.entropy_stats = {'max': -np.inf, 'min': np.inf}
-        self.total_replacements = 0  # 新增累积计数器
+        self.total_replacements = 0
         
     def record(self, old_cls, new_cls, old_entropy, new_entropy):
         """记录单次替换事件"""
@@ -49,9 +50,9 @@ class CacheMonitor:
         
         # 记录极值和累积交换次数
         wandb.log({
-            f"{self.cache_type}_cache/max_entropy": self.entropy_stats['max'],
-            f"{self.cache_type}_cache/min_entropy": self.entropy_stats['min'],
-            f"{self.cache_type}_cache/cumulative_replaces": self.total_replacements  # 新增累积曲线
+            f"{self.dataset_name}/{self.cache_type}_cache/max_entropy": self.entropy_stats['max'],
+            f"{self.dataset_name}/{self.cache_type}_cache/min_entropy": self.entropy_stats['min'],
+            f"{self.dataset_name}/{self.cache_type}_cache/cumulative_replaces": self.total_replacements
         }, step=step)
 
 
@@ -125,11 +126,11 @@ def compute_cache_logits(image_features, cache, alpha, beta, clip_weights, neg_m
         return alpha * cache_logits
 
 # 修改run_test_tda函数
-def run_test_tda(pos_cfg, neg_cfg, loader, clip_model, clip_weights):
+def run_test_tda(pos_cfg, neg_cfg, loader, clip_model, clip_weights, dataset_name):
     with torch.no_grad():
         pos_cache, neg_cache, accuracies = {}, {}, []
-        pos_monitor = CacheMonitor("positive") if pos_cfg['enabled'] else None
-        neg_monitor = CacheMonitor("negative") if neg_cfg['enabled'] else None
+        pos_monitor = CacheMonitor("positive", dataset_name) if pos_cfg['enabled'] else None
+        neg_monitor = CacheMonitor("negative", dataset_name) if neg_cfg['enabled'] else None
         
         # 解包参数
         pos_enabled, neg_enabled = pos_cfg['enabled'], neg_cfg['enabled']
@@ -216,7 +217,7 @@ def main():
             run_name = f"{dataset_name}"
             run = wandb.init(project="TDA-EXPERIMENT0314", config=cfg, group=group_name, name=run_name)
 
-        acc = run_test_tda(cfg['positive'], cfg['negative'], test_loader, clip_model, clip_weights)
+        acc = run_test_tda(cfg['positive'], cfg['negative'], test_loader, clip_model, clip_weights, dataset_name)
 
         if args.wandb:
             wandb.log({f"{dataset_name}": acc})
