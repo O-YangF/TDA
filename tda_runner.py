@@ -175,7 +175,7 @@ def run_test_tda(pos_cfg, neg_cfg, loader, clip_model, clip_weights):
             if neg_monitor:
                 neg_monitor.wandb_log(step)
 
-            if i%100==0:
+            if i%1000==0:
                 print(f"---- TDA's test accuracy: {sum(accuracies)/len(accuracies):.2f}. ----")
                 
         final_acc = sum(accuracies)/len(accuracies)
