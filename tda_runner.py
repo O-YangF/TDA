@@ -215,7 +215,7 @@ def main():
 
         if args.wandb:
             run_name = f"{dataset_name}"
-            run = wandb.init(project="TDA-EXPERIMENT0314", config=cfg, group=group_name, name=run_name)
+            run = wandb.init(project="TDA-EXPERIMENT0317", config=cfg, group=group_name, name=run_name)
 
         acc = run_test_tda(cfg['positive'], cfg['negative'], test_loader, clip_model, clip_weights, dataset_name)
 
