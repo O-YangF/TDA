@@ -142,8 +142,9 @@ def run_test_tda(pos_cfg, neg_cfg, loader, clip_model, clip_weights, dataset_nam
         # 测试时适应
         for i, (images, target) in enumerate(tqdm(loader, desc='Processed test images: ')):
             image_features, clip_logits, loss, prob_map, pred = get_clip_logits(images ,clip_model, clip_weights)
+        #       特征输入      预测结果   损失值   概率图  预测的类别
             target, prop_entropy = target.cuda(), get_entropy(loss, clip_weights)
-
+        #     标签    损失值的熵
             if pos_enabled:
                 pos_cache = update_cache(
                     pos_cache, pred, [image_features, loss], 
@@ -215,7 +216,7 @@ def main():
 
         if args.wandb:
             run_name = f"{dataset_name}"
-            run = wandb.init(project="TDA-EXPERIMENT0317", config=cfg, group=group_name, name=run_name)
+            run = wandb.init(project="TDA-EXPERIMENT0314", config=cfg, group=group_name, name=run_name)
 
         acc = run_test_tda(cfg['positive'], cfg['negative'], test_loader, clip_model, clip_weights, dataset_name)
 
