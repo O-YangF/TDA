@@ -102,7 +102,7 @@ class ImageNetSketch(DatasetBase):
         text_file = os.path.join(self.dataset_dir, "classnames.txt")
         classnames = ImageNet.read_classnames(text_file)
 
-        data = self.read_data(classnames)
+        data = self.read_data(classnames)       
 
         super().__init__(test=data)  
 

@@ -14,46 +14,60 @@ import clip
 from utils import *
 
 # my experiment 
-# 修改CacheMonitor类
 class CacheMonitor:
-    def __init__(self, cache_type, dataset_name, max_history=100):  # 新增dataset_name参数
-        self.cache_type = cache_type
-        self.dataset_name = dataset_name  # 记录数据集名称
-        self.history = deque(maxlen=max_history)
-        self.entropy_stats = {'max': -np.inf, 'min': np.inf}
-        self.total_replacements = 0
+    def __init__(self, cache_type, dataset_name, max_classes=10, max_history=100):
+        self.cache_type = cache_type  # "positive" 或 "negative"
+        self.dataset_name = dataset_name
+        self.max_classes = max_classes  # 监控的最大类别数量，默认为10
+        self.monitored_classes = []    # 存储最先遇到的不同类别
+        self.history = deque(maxlen=max_history)  # 历史记录
+        self.entropy_stats = defaultdict(lambda: {'max': -np.inf, 'min': np.inf})  # 熵统计
+        self.total_replacements = 0    # 累计替换次数
         
     def record(self, old_cls, new_cls, old_entropy, new_entropy):
-        """记录单次替换事件"""
-        # 仅当发生替换时（old_cls存在）才计数
+        # 如果有替换操作，增加计数器
         if old_cls is not None:
             self.total_replacements += 1
-            
-        record = {
-            'old_class': old_cls,
-            'new_class': new_cls,
-            'old_entropy': old_entropy,
-            'new_entropy': new_entropy,
-            'timestamp': datetime.now().isoformat()
-        }
-        self.history.append(record)
-        self._update_entropy(new_entropy)
+
+        # 动态收集前 max_classes 个不同类别
+        if new_cls not in self.monitored_classes and len(self.monitored_classes) < self.max_classes:
+            self.monitored_classes.append(new_cls)
+
+        # 只记录属于监控类别的熵值
+        if new_cls in self.monitored_classes:
+            record = {
+                'old_class': old_cls,
+                'new_class': new_cls,
+                'old_entropy': old_entropy,
+                'new_entropy': new_entropy,
+                'timestamp': datetime.now().isoformat()
+            }
+            self.history.append(record)
+            self._update_entropy(new_cls, new_entropy)
         
-    def _update_entropy(self, entropy):
-        self.entropy_stats['max'] = max(self.entropy_stats['max'], entropy)
-        self.entropy_stats['min'] = min(self.entropy_stats['min'], entropy)
+    def _update_entropy(self, cls, entropy):
+        # 更新指定类别的最大和最小熵值
+        self.entropy_stats[cls]['max'] = max(self.entropy_stats[cls]['max'], entropy)
+        self.entropy_stats[cls]['min'] = min(self.entropy_stats[cls]['min'], entropy)
         
     def wandb_log(self, step):
-        """提交监控数据到wandb"""
         if not self.history:
             return
-        
-        # 记录极值和累积交换次数
+
+        # 记录每个监控类别的最大和最小熵值
+        for cls in self.monitored_classes:
+            wandb.log({
+                f"{self.dataset_name}/{self.cache_type}_cache/class_{cls}/max_entropy": self.entropy_stats[cls]['max'],
+                f"{self.dataset_name}/{self.cache_type}_cache/class_{cls}/min_entropy": self.entropy_stats[cls]['min'],
+            }, step=step)
+
+        # 记录累计替换次数
         wandb.log({
-            f"{self.dataset_name}/{self.cache_type}_cache/max_entropy": self.entropy_stats['max'],
-            f"{self.dataset_name}/{self.cache_type}_cache/min_entropy": self.entropy_stats['min'],
             f"{self.dataset_name}/{self.cache_type}_cache/cumulative_replaces": self.total_replacements
         }, step=step)
+    def get_monitored_classes(self):
+        # 返回当前监控的类别列表
+        return self.monitored_classes
 
 
 def get_arguments():
@@ -126,11 +140,11 @@ def compute_cache_logits(image_features, cache, alpha, beta, clip_weights, neg_m
         return alpha * cache_logits
 
 # 修改run_test_tda函数
-def run_test_tda(pos_cfg, neg_cfg, loader, clip_model, clip_weights, dataset_name):
+def run_test_tda(pos_cfg, neg_cfg, loader, clip_model, clip_weights, dataset_name, max_classes=20):
     with torch.no_grad():
         pos_cache, neg_cache, accuracies = {}, {}, []
-        pos_monitor = CacheMonitor("positive", dataset_name) if pos_cfg['enabled'] else None
-        neg_monitor = CacheMonitor("negative", dataset_name) if neg_cfg['enabled'] else None
+        pos_monitor = CacheMonitor("positive", dataset_name, max_classes) if pos_cfg['enabled'] else None
+        neg_monitor = CacheMonitor("negative", dataset_name, max_classes) if neg_cfg['enabled'] else None
         
         # 解包参数
         pos_enabled, neg_enabled = pos_cfg['enabled'], neg_cfg['enabled']
@@ -216,9 +230,9 @@ def main():
 
         if args.wandb:
             run_name = f"{dataset_name}"
-            run = wandb.init(project="TDA-EXPERIMENT0314", config=cfg, group=group_name, name=run_name)
+            run = wandb.init(project="TDA-EXPERIMENT0324", config=cfg, group=group_name, name=run_name)
 
-        acc = run_test_tda(cfg['positive'], cfg['negative'], test_loader, clip_model, clip_weights, dataset_name)
+        acc = run_test_tda(cfg['positive'], cfg['negative'], test_loader, clip_model, clip_weights, dataset_name, 20)
 
         if args.wandb:
             wandb.log({f"{dataset_name}": acc})
