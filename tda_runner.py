@@ -97,7 +97,8 @@ def update_cache(cache, pred, features_loss, shot_capacity, monitor=None, includ
             monitor.record(None, pred, None, features_loss[1].item())
     else:
         # 计算新样本与队列中所有样本的相似度
-        similarities = [F.cosine_similarity(item[0], existing_item[0], dim=0).item() for existing_item in cache[pred]]
+        similarities = [F.cosine_similarity(item[0].squeeze(0), existing_item[0].squeeze(0), dim=0).item() 
+                        for existing_item in cache[pred]]
         max_similarity = max(similarities)
 
         if max_similarity < similarity_threshold:
