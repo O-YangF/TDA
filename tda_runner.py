@@ -55,7 +55,7 @@ class CacheMonitor:
             return
         
 
-        
+
 # ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
         # # 记录每个监控类别的最大和最小熵值
         # for cls in self.monitored_classes:
@@ -300,7 +300,7 @@ def main():
 
         if args.wandb:
             run_name = f"{dataset_name}"
-            run = wandb.init(project="TDA-EXPERIMENT0325", config=default_cfg, group=group_name, name=run_name)
+            run = wandb.init(project="TDA-EXPERIMENT0325-2", config=default_cfg, group=group_name, name=run_name)
 
 
 

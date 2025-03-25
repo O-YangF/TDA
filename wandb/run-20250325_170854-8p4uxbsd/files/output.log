@@ -1,0 +1,53 @@
+[32m[I 2025-03-25 17:09:00,826][39m A new study created in memory with name: no-name-77222f81-ef69-4a83-b54c-b10575cd0081
+
+Processed test images:   0%|                                                        | 5/6862 [00:32<5:41:22,  2.99s/it]
+
+
+
+
+
+
+
+
+
+
+
+Processed test images:   2%|▊                                                     | 103/6862 [00:55<1:00:40,  1.86it/s]
+[33m[W 2025-03-25 17:09:56,321][39m Trial 0 failed with parameters: {'similarity_threshold': 0.9972099248024009, 'pos_shot_capacity': 5, 'pos_alpha': 0.6638440727753309, 'pos_beta': 7.268289406400509, 'neg_shot_capacity': 7, 'neg_alpha': 0.6216555414411462, 'neg_beta': 0.1567041132353265, 'entropy_lower': 0.1897895452716825, 'entropy_upper': 0.8836836437197755, 'mask_lower': 0.0880048533654455, 'mask_upper': 0.6611608339268437} because of the following error: KeyboardInterrupt().
+Traceback (most recent call last):
+  File "E:\AllAppData\AnacondaDataForEnv\tda\lib\site-packages\optuna\study\_optimize.py", line 197, in _run_trial
+    value_or_values = func(trial)
+  File "tda_runner.py", line 322, in <lambda>
+    lambda trial: objective(trial, default_cfg, test_loader, clip_model, clip_weights, dataset_name, args),
+  File "tda_runner.py", line 249, in objective
+    max_classes=20, similarity_threshold=similarity_threshold
+  File "tda_runner.py", line 171, in run_test_tda
+    image_features, clip_logits, loss, prob_map, pred = get_clip_logits(images ,clip_model, clip_weights)
+  File "E:\Desktop\learning\GD-MM-OSTTA\Experiment\TDA\utils.py", line 85, in get_clip_logits
+    pred = int(output.mean(0).unsqueeze(0).topk(1, 1, True, True)[1].t())
+KeyboardInterrupt
+[33m[W 2025-03-25 17:09:56,325][39m Trial 0 failed with value None.
+Traceback (most recent call last):
+  File "tda_runner.py", line 340, in <module>
+    main()
+  File "tda_runner.py", line 323, in main
+    n_trials=50  # Number of trials, adjustable
+  File "E:\AllAppData\AnacondaDataForEnv\tda\lib\site-packages\optuna\study\study.py", line 484, in optimize
+    show_progress_bar=show_progress_bar,
+  File "E:\AllAppData\AnacondaDataForEnv\tda\lib\site-packages\optuna\study\_optimize.py", line 73, in _optimize
+    progress_bar=progress_bar,
+  File "E:\AllAppData\AnacondaDataForEnv\tda\lib\site-packages\optuna\study\_optimize.py", line 160, in _optimize_sequential
+    frozen_trial = _run_trial(study, func, catch)
+  File "E:\AllAppData\AnacondaDataForEnv\tda\lib\site-packages\optuna\study\_optimize.py", line 248, in _run_trial
+    raise func_err
+  File "E:\AllAppData\AnacondaDataForEnv\tda\lib\site-packages\optuna\study\_optimize.py", line 197, in _run_trial
+    value_or_values = func(trial)
+  File "tda_runner.py", line 322, in <lambda>
+    lambda trial: objective(trial, default_cfg, test_loader, clip_model, clip_weights, dataset_name, args),
+  File "tda_runner.py", line 249, in objective
+    max_classes=20, similarity_threshold=similarity_threshold
+  File "tda_runner.py", line 171, in run_test_tda
+    image_features, clip_logits, loss, prob_map, pred = get_clip_logits(images ,clip_model, clip_weights)
+  File "E:\Desktop\learning\GD-MM-OSTTA\Experiment\TDA\utils.py", line 85, in get_clip_logits
+    pred = int(output.mean(0).unsqueeze(0).topk(1, 1, True, True)[1].t())
+KeyboardInterrupt
