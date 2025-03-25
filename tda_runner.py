@@ -53,18 +53,25 @@ class CacheMonitor:
     def wandb_log(self, step):
         if not self.history:
             return
+        
 
-        # 记录每个监控类别的最大和最小熵值
-        for cls in self.monitored_classes:
-            wandb.log({
-                f"{self.dataset_name}/{self.cache_type}_cache/class_{cls}/max_entropy": self.entropy_stats[cls]['max'],
-                f"{self.dataset_name}/{self.cache_type}_cache/class_{cls}/min_entropy": self.entropy_stats[cls]['min'],
-            }, step=step)
+        
+# ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+        # # 记录每个监控类别的最大和最小熵值
+        # for cls in self.monitored_classes:
+        #     wandb.log({
+        #         f"{self.dataset_name}/{self.cache_type}_cache/class_{cls}/max_entropy": self.entropy_stats[cls]['max'],
+        #         f"{self.dataset_name}/{self.cache_type}_cache/class_{cls}/min_entropy": self.entropy_stats[cls]['min'],
+        #     }, step=step)
 
-        # 记录累计替换次数
-        wandb.log({
-            f"{self.dataset_name}/{self.cache_type}_cache/cumulative_replaces": self.total_replacements
-        }, step=step)
+        # # 记录累计替换次数
+        # wandb.log({
+        #     f"{self.dataset_name}/{self.cache_type}_cache/cumulative_replaces": self.total_replacements
+        # }, step=step)
+# ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+
+
+
     def get_monitored_classes(self):
         # 返回当前监控的类别列表
         return self.monitored_classes
@@ -188,9 +195,12 @@ def run_test_tda(pos_cfg, neg_cfg, loader, clip_model, clip_weights, dataset_nam
             
             # 记录监控数据
             step = i + 1
-            wandb.log({
-                "Averaged test accuracy": sum(accuracies)/len(accuracies),
-            }, step=step)
+
+# ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+            # wandb.log({
+            #     "Averaged test accuracy": sum(accuracies)/len(accuracies),
+            # }, step=step)
+# ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
             
             if pos_monitor:
                 pos_monitor.wandb_log(step)
@@ -292,12 +302,16 @@ def main():
             run_name = f"{dataset_name}"
             run = wandb.init(project="TDA-EXPERIMENT0325", config=default_cfg, group=group_name, name=run_name)
 
+
+
+            
+# ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
         # acc = run_test_tda(cfg['positive'], cfg['negative'], test_loader, clip_model, clip_weights, dataset_name, 20)
 
         # if args.wandb:
         #     wandb.log({f"{dataset_name}": acc})
         #     run.finish()
-
+# ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
 
 
 
