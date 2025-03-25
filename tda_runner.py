@@ -5,7 +5,7 @@ from tqdm import tqdm
 from datetime import datetime
 from collections import defaultdict, deque
 import numpy as np
-
+import optuna
 import torch
 import torch.nn.functional as F
 import operator
@@ -84,7 +84,7 @@ def get_arguments():
     return args
 
 
-def update_cache(cache, pred, features_loss, shot_capacity, monitor=None, include_prob_map=False):
+def update_cache(cache, pred, features_loss, shot_capacity, monitor=None, include_prob_map=False, similarity_threshold=0.9):
     """更新缓存并记录替换事件"""
     item = features_loss if not include_prob_map else features_loss[:2] + [features_loss[2]]
     
@@ -96,21 +96,26 @@ def update_cache(cache, pred, features_loss, shot_capacity, monitor=None, includ
         if monitor:
             monitor.record(None, pred, None, features_loss[1].item())
     else:
-        # 找到被替换的样本
-        old_items = sorted(cache[pred], key=lambda x: x[1])
-        replaced_item = old_items[-1]
+        # 计算新样本与队列中所有样本的相似度
+        similarities = [F.cosine_similarity(item[0], existing_item[0], dim=0).item() for existing_item in cache[pred]]
+        max_similarity = max(similarities)
+
+        if max_similarity < similarity_threshold:
+            # 找到熵值最大的样本（将被替换）
+            old_items = sorted(cache[pred], key=lambda x: x[1])
+            replaced_item = old_items[-1]
         
-        # 仅当新样本损失更小时替换
-        if features_loss[1] < replaced_item[1]:
-            old_cls = pred  # 假设缓存按类别组织
-            old_entropy = replaced_item[1].item()
-            new_entropy = features_loss[1].item()
-            
-            cache[pred][-1] = item
-            cache[pred].sort(key=lambda x: x[1])
-            
-            if monitor:
-                monitor.record(old_cls, pred, old_entropy, new_entropy)
+            # 仅当新样本损失更小时替换
+            if features_loss[1] < replaced_item[1]:
+                old_cls = pred  # 假设缓存按类别组织
+                old_entropy = replaced_item[1].item()
+                new_entropy = features_loss[1].item()
+                
+                cache[pred][-1] = item
+                cache[pred].sort(key=lambda x: x[1])
+                
+                if monitor:
+                    monitor.record(old_cls, pred, old_entropy, new_entropy)
 
     return cache
 
@@ -139,8 +144,8 @@ def compute_cache_logits(image_features, cache, alpha, beta, clip_weights, neg_m
         cache_logits = ((-1) * (beta - beta * affinity)).exp() @ cache_values
         return alpha * cache_logits
 
-# 修改run_test_tda函数
-def run_test_tda(pos_cfg, neg_cfg, loader, clip_model, clip_weights, dataset_name, max_classes=20):
+
+def run_test_tda(pos_cfg, neg_cfg, loader, clip_model, clip_weights, dataset_name, max_classes=20, similarity_threshold=0.9):
     with torch.no_grad():
         pos_cache, neg_cache, accuracies = {}, {}, []
         pos_monitor = CacheMonitor("positive", dataset_name, max_classes) if pos_cfg['enabled'] else None
@@ -162,13 +167,13 @@ def run_test_tda(pos_cfg, neg_cfg, loader, clip_model, clip_weights, dataset_nam
             if pos_enabled:
                 pos_cache = update_cache(
                     pos_cache, pred, [image_features, loss], 
-                    pos_params['shot_capacity'], pos_monitor
+                    pos_params['shot_capacity'], pos_monitor, similarity_threshold=similarity_threshold
                 )
 
             if neg_enabled and neg_params['entropy_threshold']['lower'] < prop_entropy < neg_params['entropy_threshold']['upper']:
                 neg_cache = update_cache(
                     neg_cache, pred, [image_features, loss, prob_map],
-                    neg_params['shot_capacity'], neg_monitor, True
+                    neg_params['shot_capacity'], neg_monitor, True, similarity_threshold=similarity_threshold
                 )
 
             final_logits = clip_logits.clone()
@@ -199,6 +204,60 @@ def run_test_tda(pos_cfg, neg_cfg, loader, clip_model, clip_weights, dataset_nam
         return final_acc
 
 
+def objective(trial, default_cfg, test_loader, clip_model, clip_weights, dataset_name, args):
+    cfg = default_cfg.copy()
+
+    # Suggest hyperparameter values
+    similarity_threshold = trial.suggest_float('similarity_threshold', 0.5, 1.0)
+    pos_shot_capacity = trial.suggest_int('pos_shot_capacity', 1, 10)
+    pos_alpha = trial.suggest_float('pos_alpha', 0.1, 2.0)
+    pos_beta = trial.suggest_float('pos_beta', 1.0, 10.0)
+    neg_shot_capacity = trial.suggest_int('neg_shot_capacity', 1, 10)
+    neg_alpha = trial.suggest_float('neg_alpha', 0.01, 1.0)
+    neg_beta = trial.suggest_float('neg_beta', 0.1, 2.0)
+    entropy_lower = trial.suggest_float('entropy_lower', 0.0, 0.5)
+    entropy_upper = trial.suggest_float('entropy_upper', 0.5, 1.0)
+    mask_lower = trial.suggest_float('mask_lower', 0.0, 0.1)
+    mask_upper = trial.suggest_float('mask_upper', 0.1, 1.0)
+
+    # Update configuration
+    cfg['positive']['shot_capacity'] = pos_shot_capacity
+    cfg['positive']['alpha'] = pos_alpha
+    cfg['positive']['beta'] = pos_beta
+    cfg['negative']['shot_capacity'] = neg_shot_capacity
+    cfg['negative']['alpha'] = neg_alpha
+    cfg['negative']['beta'] = neg_beta
+    cfg['negative']['entropy_threshold']['lower'] = entropy_lower
+    cfg['negative']['entropy_threshold']['upper'] = entropy_upper
+    cfg['negative']['mask_threshold']['lower'] = mask_lower
+    cfg['negative']['mask_threshold']['upper'] = mask_upper
+
+    # Run model with updated config
+    acc = run_test_tda(
+        cfg['positive'], cfg['negative'], test_loader, clip_model, clip_weights, dataset_name, 
+        max_classes=20, similarity_threshold=similarity_threshold
+    )
+
+# 如果启用了wandb，记录超参数和准确率
+    if args.wandb:
+        wandb.log({
+            "trial": trial.number,
+            "similarity_threshold": similarity_threshold,
+            "pos_shot_capacity": pos_shot_capacity,
+            "pos_alpha": pos_alpha,
+            "pos_beta": pos_beta,
+            "neg_shot_capacity": neg_shot_capacity,
+            "neg_alpha": neg_alpha,
+            "neg_beta": neg_beta,
+            "entropy_lower": entropy_lower,
+            "entropy_upper": entropy_upper,
+            "mask_lower": mask_lower,
+            "mask_upper": mask_upper,
+            "accuracy": acc
+        }, step=trial.number)
+
+    return acc
+
 
 def main():
     args = get_arguments()
@@ -221,22 +280,46 @@ def main():
     for dataset_name in datasets:
         print(f"Processing {dataset_name} dataset.")
         
-        cfg = get_config_file(config_path, dataset_name)
-        print("\nRunning dataset configurations:")
-        print(cfg, "\n")
+        default_cfg = get_config_file(config_path, dataset_name)
+        print("\nDefault dataset configurations:")
+        print(default_cfg, "\n")
         
         test_loader, classnames, template = build_test_data_loader(dataset_name, args.data_root, preprocess)
         clip_weights = clip_classifier(classnames, template, clip_model)
 
         if args.wandb:
             run_name = f"{dataset_name}"
-            run = wandb.init(project="TDA-EXPERIMENT0324", config=cfg, group=group_name, name=run_name)
+            run = wandb.init(project="TDA-EXPERIMENT0325", config=default_cfg, group=group_name, name=run_name)
 
-        acc = run_test_tda(cfg['positive'], cfg['negative'], test_loader, clip_model, clip_weights, dataset_name, 20)
+        # acc = run_test_tda(cfg['positive'], cfg['negative'], test_loader, clip_model, clip_weights, dataset_name, 20)
+
+        # if args.wandb:
+        #     wandb.log({f"{dataset_name}": acc})
+        #     run.finish()
+
+
+
+
+
+        # NEW: Create and run Optuna study
+        study = optuna.create_study(direction='maximize')
+        study.optimize(
+            lambda trial: objective(trial, default_cfg, test_loader, clip_model, clip_weights, dataset_name, args),
+            n_trials=50  # Number of trials, adjustable
+        )
+
+        # Log best results
+        print(f"Best parameters for {dataset_name}: {study.best_params}")
+        print(f"Best accuracy for {dataset_name}: {study.best_value}")
 
         if args.wandb:
-            wandb.log({f"{dataset_name}": acc})
+            wandb.log({f"{dataset_name}_best_acc": study.best_value})
             run.finish()
+
+
+
+
+
 
 if __name__ == "__main__":
     main()
