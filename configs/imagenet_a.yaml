@@ -6,7 +6,6 @@ positive:
   shot_capacity: 3
   alpha: 2.0
   beta: 5.0 
-  admission_threshold: 0.8  
 
 # --- Negative Cache Configuration ---
 negative:
@@ -14,7 +13,6 @@ negative:
   shot_capacity: 2
   alpha: 0.117
   beta: 1.0
-  gating_threshold: 0.65  
   entropy_threshold:
     lower: 0.2
     upper: 0.5 
