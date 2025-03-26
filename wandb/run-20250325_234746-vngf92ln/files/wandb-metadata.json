@@ -1,0 +1,61 @@
+{
+    "os": "Windows-10-10.0.26100-SP0",
+    "python": "3.7.16",
+    "heartbeatAt": "2025-03-25T15:47:51.062814",
+    "startedAt": "2025-03-25T15:47:46.432057",
+    "docker": null,
+    "cuda": null,
+    "args": [
+        "--config",
+        "configs",
+        "--wandb-log",
+        "--datasets",
+        "A",
+        "--backbone",
+        "ViT-B/16"
+    ],
+    "state": "running",
+    "program": "tda_runner.py",
+    "codePathLocal": "tda_runner.py",
+    "codePath": "tda_runner.py",
+    "git": {
+        "remote": "git@github.com:O-YangF/TDA.git",
+        "commit": "ab1028d89013f447a06bea61d05acf77d03d57fc"
+    },
+    "email": "swouyangfan@163.com",
+    "root": "E:/Desktop/learning/GD-MM-OSTTA/Experiment/TDA",
+    "host": "oyf",
+    "username": "swouy",
+    "executable": "E:\\AllAppData\\AnacondaDataForEnv\\tda\\python.exe",
+    "cpu_count": 14,
+    "cpu_count_logical": 20,
+    "cpu_freq": {
+        "current": 1496.0,
+        "min": 0.0,
+        "max": 2600.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 1496.0,
+            "min": 0.0,
+            "max": 2600.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 1907.7119102478027,
+            "used": 217.55543899536133
+        }
+    },
+    "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "gpu_count": 1,
+    "gpu_devices": [
+        {
+            "name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+            "memory_total": 8585740288
+        }
+    ],
+    "memory": {
+        "total": 23.73033905029297
+    }
+}

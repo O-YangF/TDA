@@ -92,40 +92,101 @@ def get_arguments():
 
 
 def update_cache(cache, pred, features_loss, shot_capacity, monitor=None, include_prob_map=False, similarity_threshold=0.9):
-    """更新缓存并记录替换事件"""
-    item = features_loss if not include_prob_map else features_loss[:2] + [features_loss[2]]
+    
+    """
+    更新缓存，结合熵值和相似度进行更精细的替换。
+    Args:
+        cache: 当前缓存 (dict: class_id -> list of [feature, loss, Optional[prob_map]])
+        pred: 当前样本的预测类别
+        features_loss: 包含 [图像特征, 损失/熵, Optional[概率图]] 的列表
+        shot_capacity: 每个类别缓存的最大容量
+        monitor: CacheMonitor实例，用于记录
+        include_prob_map: 是否在缓存项中包含概率图 (用于负缓存)
+        similarity_threshold: 用于判断样本是否高度相似的余弦相似度阈值
+    """
+        
+    # 准备要缓存的项
+    item_to_cache = features_loss if not include_prob_map else features_loss[:2] + [features_loss[2]]
+    new_feature = item_to_cache[0]
+    new_loss = item_to_cache[1] # 使用 loss/entropy 作为判断标准
     
     if pred not in cache:
         cache[pred] = []
         
     if len(cache[pred]) < shot_capacity:
-        cache[pred].append(item)
+        cache[pred].append(item_to_cache)
         if monitor:
             monitor.record(None, pred, None, features_loss[1].item())
     else:
-        # 计算新样本与队列中所有样本的相似度
-        similarities = [F.cosine_similarity(item[0].squeeze(0), existing_item[0].squeeze(0), dim=0).item() 
-                        for existing_item in cache[pred]]
-        max_similarity = max(similarities)
-
-        if max_similarity < similarity_threshold:
-            # 找到熵值最大的样本（将被替换）
-            old_items = sorted(cache[pred], key=lambda x: x[1])
-            replaced_item = old_items[-1]
         
-            # 仅当新样本损失更小时替换
-            if features_loss[1] < replaced_item[1]:
-                old_cls = pred  # 假设缓存按类别组织
-                old_entropy = replaced_item[1].item()
-                new_entropy = features_loss[1].item()
-                
-                cache[pred][-1] = item
-                cache[pred].sort(key=lambda x: x[1])
-                
-                if monitor:
-                    monitor.record(old_cls, pred, old_entropy, new_entropy)
+        higher_loss_group = [] # 存储 (index, sample)
+        lower_loss_group = []  # 存储 (index, sample)
+    
+        # 1. 分离缓存为两组
+        for idx, existing_item in enumerate(cache[pred]):
+            if existing_item[1] > new_loss:
+                higher_loss_group.append((idx, existing_item))
+            else:
+                lower_loss_group.append((idx, existing_item))
+        
+        # 2. 检查 higher_loss_group 中是否存在高相似度样本
+        highly_similar_in_higher = [] # 存储 (index, sample, similarity)
+        for idx, existing_item in higher_loss_group:
+            similarity = F.cosine_similarity(new_feature.squeeze(0), existing_item[0].squeeze(0), dim=0).item()
+            if similarity > similarity_threshold:
+                highly_similar_in_higher.append((idx, existing_item, similarity))
+
+        # Action A: 如果找到高相似度样本，替换其中熵最高的那个
+        if highly_similar_in_higher:
+            # 找到这些高相似度样本中熵最高的那个
+            best_candidate_tuple = max(highly_similar_in_higher, key=lambda x: x[1][1])
+
+            target_idx = best_candidate_tuple[0]
+            item_to_replace = best_candidate_tuple[1]
+            
+            old_entropy = item_to_replace[1].item()
+            new_entropy = new_loss.item()
+            
+            # 执行替换
+            cache[pred][target_idx] = item_to_cache
+            
+            if monitor:
+                monitor.record(pred, pred, old_entropy, new_entropy)
+            # 替换发生，结束此样本的处理
+            return cache 
+        
+        # 3. 如果 Action A 未执行，检查 lower_entropy_group 中是否存在高相似度样本
+        found_high_similarity_in_lower = False
+        for idx, existing_item in lower_loss_group:
+            similarity = F.cosine_similarity(new_feature.squeeze(0), existing_item[0].squeeze(0), dim=0).item()
+            if similarity > similarity_threshold:
+                found_high_similarity_in_lower = True
+                break # 找到一个就足够判断
+
+
+        # Action B: 如果找到，直接返回，不做任何更改
+        if found_high_similarity_in_lower:
+            # 不做任何操作，因为新样本与一个已经很好的样本太相似
+            return cache
+
+        # 4. 如果 Action A 和 B 都未执行 (即新样本与现有样本都不高度相似)
+        # Action C: 检查 higher_entropy_group 是否为空。如果不为空，替换其中熵最高的那个样本
+        if higher_loss_group: # 确保有比新样本更差的样本存在
+             # 找到 higher_entropy_group 中熵最高的样本
+            target_idx, item_to_replace = max(higher_loss_group, key=lambda x: x[1][1]) # x[1]是sample, x[1][1]是loss
+
+            old_entropy = item_to_replace[1].item()
+            new_entropy = new_loss.item()
+
+            # 执行替换
+            cache[pred][target_idx] = item_to_cache
+
+            if monitor:
+                monitor.record(pred, pred, old_entropy, new_entropy)
+        # else: # 如果 higher_entropy_group 为空，意味着新样本不比缓存中任何样本更好，则不执行任何操作
 
     return cache
+
 
 
 def compute_cache_logits(image_features, cache, alpha, beta, clip_weights, neg_mask_thresholds=None):
@@ -153,7 +214,8 @@ def compute_cache_logits(image_features, cache, alpha, beta, clip_weights, neg_m
         return alpha * cache_logits
 
 
-def run_test_tda(pos_cfg, neg_cfg, loader, clip_model, clip_weights, dataset_name, max_classes=20, similarity_threshold=0.9):
+def run_test_tda(pos_cfg, neg_cfg, loader, clip_model, clip_weights, dataset_name, max_classes=20, pos_similarity_threshold=0.9, neg_similarity_threshold=0.9):
+    """Run test-time adaptation on the given dataset."""
     with torch.no_grad():
         pos_cache, neg_cache, accuracies = {}, {}, []
         pos_monitor = CacheMonitor("positive", dataset_name, max_classes) if pos_cfg['enabled'] else None
@@ -175,13 +237,13 @@ def run_test_tda(pos_cfg, neg_cfg, loader, clip_model, clip_weights, dataset_nam
             if pos_enabled:
                 pos_cache = update_cache(
                     pos_cache, pred, [image_features, loss], 
-                    pos_params['shot_capacity'], pos_monitor, similarity_threshold=similarity_threshold
+                    pos_params['shot_capacity'], pos_monitor, similarity_threshold=pos_similarity_threshold
                 )
 
             if neg_enabled and neg_params['entropy_threshold']['lower'] < prop_entropy < neg_params['entropy_threshold']['upper']:
                 neg_cache = update_cache(
                     neg_cache, pred, [image_features, loss, prob_map],
-                    neg_params['shot_capacity'], neg_monitor, True, similarity_threshold=similarity_threshold
+                    neg_params['shot_capacity'], neg_monitor, True, similarity_threshold=neg_similarity_threshold
                 )
 
             final_logits = clip_logits.clone()
@@ -219,7 +281,8 @@ def objective(trial, default_cfg, test_loader, clip_model, clip_weights, dataset
     cfg = default_cfg.copy()
 
     # Suggest hyperparameter values
-    similarity_threshold = trial.suggest_float('similarity_threshold', 0.5, 1.0)
+    pos_similarity_threshold = trial.suggest_float('pos_similarity_threshold', 0.5, 1.0)  # 正缓存阈值
+    neg_similarity_threshold = trial.suggest_float('neg_similarity_threshold', 0.5, 1.0)  # 负缓存阈值
     pos_shot_capacity = trial.suggest_int('pos_shot_capacity', 1, 10)
     pos_alpha = trial.suggest_float('pos_alpha', 0.1, 2.0)
     pos_beta = trial.suggest_float('pos_beta', 1.0, 10.0)
@@ -246,14 +309,15 @@ def objective(trial, default_cfg, test_loader, clip_model, clip_weights, dataset
     # Run model with updated config
     acc = run_test_tda(
         cfg['positive'], cfg['negative'], test_loader, clip_model, clip_weights, dataset_name, 
-        max_classes=20, similarity_threshold=similarity_threshold
+        max_classes=20,pos_similarity_threshold=pos_similarity_threshold, neg_similarity_threshold=neg_similarity_threshold
     )
 
 # 如果启用了wandb，记录超参数和准确率
     if args.wandb:
         wandb.log({
             "trial": trial.number,
-            "similarity_threshold": similarity_threshold,
+            "pos_similarity_threshold": pos_similarity_threshold,
+            "neg_similarity_threshold": neg_similarity_threshold,
             "pos_shot_capacity": pos_shot_capacity,
             "pos_alpha": pos_alpha,
             "pos_beta": pos_beta,

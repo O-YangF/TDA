@@ -1,0 +1,56 @@
+wandb_version: 1
+
+positive:
+  desc: null
+  value:
+    enabled: true
+    shot_capacity: 3
+    alpha: 2.0
+    beta: 5.0
+    admission_threshold: 0.8
+negative:
+  desc: null
+  value:
+    enabled: true
+    shot_capacity: 2
+    alpha: 0.117
+    beta: 1.0
+    gating_threshold: 0.65
+    entropy_threshold:
+      lower: 0.2
+      upper: 0.5
+    mask_threshold:
+      lower: 0.03
+      upper: 1.0
+_wandb:
+  desc: null
+  value:
+    python_version: 3.7.16
+    cli_version: 0.15.12
+    framework: torch
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    start_time: 1742959275.185711
+    t:
+      1:
+      - 1
+      - 35
+      - 41
+      - 51
+      - 55
+      2:
+      - 1
+      - 35
+      - 41
+      - 51
+      - 55
+      3:
+      - 13
+      - 16
+      - 23
+      4: 3.7.16
+      5: 0.15.12
+      8:
+      - 3
+      - 5
+      13: windows-amd64

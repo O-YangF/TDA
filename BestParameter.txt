@@ -1,0 +1,105 @@
+
+Default dataset configurations:
+{'positive': {'enabled': True, 'shot_capacity': 3, 'alpha': 2.0, 'beta': 5.0}, 'negative': {'enabled': True, 'shot_capacity': 2, 'alpha': 0.117, 'beta': 1.0, 'entropy_threshold': {'lower': 0.2, 'upper': 0.5}, 'mask_threshold': {'lower': 0.03, 'upper': 1.0}}}
+
+wandb: Currently logged in as: you299854 (you299854-south-china-university-of-technology). Use `wandb login --relogin` to force relogin
+wandb: wandb version 0.19.8 is available!  To upgrade, please run:
+wandb:  $ pip install wandb --upgrade
+wandb: Tracking run with wandb version 0.15.12
+wandb: Run data is saved locally in E:\Desktop\learning\GD-MM-OSTTA\Experiment\TDA\wandb\run-20250325_173039-lrd4o70g
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run A
+wandb:  View project at https://wandb.ai/you299854-south-china-university-of-technology/TDA-EXPERIMENT0325-2
+wandb:  View run at https://wandb.ai/you299854-south-china-university-of-technology/TDA-EXPERIMENT0325-2/runs/lrd4o70g
+[I 2025-03-25 17:30:46,808] A new study created in memory with name: no-name-5c911b3c-6464-415f-8f3e-984819ce2a92
+Processed test images:   0%|                                                                  | 0/6862 [00:00<?, ?it/s]---- TDA's test accuracy: 0.00. ----
+Processed test images:  15%|████████                                               | 1000/6862 [04:06<19:57,  4.90it/s]---- TDA's test accuracy: 61.04. ----Processed test images:  29%|████████████████                                       | 2000/6862 [08:02<23:32,  3.44it/s]---- TDA's test accuracy: 60.92. ----Processed test images:  44%|████████████████████████                               | 3000/6862 [11:50<13:18,  4.84it/s]---- TDA's test accuracy: 60.08. ----Processed test images:  58%|████████████████████████████████                       | 4000/6862 [15:26<09:46,  4.88it/s]---- TDA's test accuracy: 59.64. ----Processed test images:  73%|████████████████████████████████████████               | 5000/6862 [18:52<08:51,  3.50it/s]---- TDA's test accuracy: 60.15. ----Processed test images:  87%|████████████████████████████████████████████████       | 6000/6862 [22:21<02:59,  4.81it/s]---- TDA's test accuracy: 59.64. ----Processed test images: 100%|███████████████████████████████████████████████████████| 6862/6862 [26:35<00:00,  4.30it/s]
+---- Final TDA's test accuracy: 59.72. ----
+[I 2025-03-25 17:57:22,114] Trial 0 finished with value: 59.72019819294666 and parameters: {'similarity_threshold': 0.8057247329379339, 'pos_shot_capacity': 10, 'pos_alpha': 0.21303027607680783, 'pos_beta': 1.514133861823109, 'neg_shot_capacity': 6, 'neg_alpha': 0.5725278629226626, 'neg_beta': 1.5141167153800534, 'entropy_lower': 0.40238357029835725, 'entropy_upper': 0.7267173261620135, 'mask_lower': 0.014275852368625653, 'mask_upper': 0.35623655126506915}. Best is trial 0 with value: 59.72019819294666.
+Processed test images:   0%|                                                                                                      | 0/6862 [00:00<?, ?it/s]---- TDA's test accuracy: 0.00. ----
+Processed test images:  11%|██████████                                                                                  | 755/6862 [03:44<32:18,  3.15it/s]wandb: Network error (ProxyError), entering retry loop.
+Processed test images:  15%|█████████████▎                                                                             | 1000/6862 [04:43<21:41,  4.51it/s]---- TDA's test accuracy: 59.84. ----
+Processed test images:  29%|██████████████████████████▌                                                                | 2000/6862 [08:39<17:45,  4.56it/s]---- TDA's test accuracy: 60.52. ----
+Processed test images:  44%|███████████████████████████████████████▊                                                   | 3000/6862 [12:20<14:05,  4.57it/s]---- TDA's test accuracy: 60.95. ----
+Processed test images:  58%|█████████████████████████████████████████████████████                                      | 4000/6862 [16:01<10:35,  4.51it/s]---- TDA's test accuracy: 60.11. ----
+Processed test images:  73%|██████████████████████████████████████████████████████████████████▎                        | 5000/6862 [19:43<06:51,  4.52it/s]---- TDA's test accuracy: 60.19. ----
+Processed test images:  87%|███████████████████████████████████████████████████████████████████████████████▌           | 6000/6862 [23:24<03:10,  4.52it/s]---- TDA's test accuracy: 60.19. ----
+Processed test images: 100%|███████████████████████████████████████████████████████████████████████████████████████████| 6862/6862 [26:35<00:00,  4.30it/s]
+---- Final TDA's test accuracy: 60.10. ----
+[I 2025-03-25 18:23:58,002] Trial 1 finished with value: 60.09909647333139 and parameters: {'similarity_threshold': 0.8340027028581503, 'pos_shot_capacity': 2, 'pos_alpha': 1.233682197391271, 'pos_beta': 4.475597846891016, 'neg_shot_capacity': 2, 'neg_alpha': 0.11994523921079955, 'neg_beta': 0.5155411693711486, 'entropy_lower': 0.003332975990561704, 'entropy_upper': 0.9973997257102312, 'mask_lower': 0.06698365798615118, 'mask_upper': 0.330273199098112}. Best is trial 1 with value: 60.09909647333139.
+Processed test images:   0%|                                                                                                      | 0/6862 [00:00<?, ?it/s]---- TDA's test accuracy: 100.00. ----
+Processed test images:  15%|█████████████▎                                                                             | 1000/6862 [04:01<21:30,  4.54it/s]---- TDA's test accuracy: 58.94. ----
+Processed test images:  29%|██████████████████████████▌                                                                | 2000/6862 [07:43<17:52,  4.53it/s]---- TDA's test accuracy: 59.67. ----
+Processed test images:  44%|███████████████████████████████████████▊                                                   | 3000/6862 [11:25<14:22,  4.48it/s]---- TDA's test accuracy: 60.18. ----
+Processed test images:  58%|█████████████████████████████████████████████████████                                      | 4000/6862 [15:08<10:40,  4.47it/s]---- TDA's test accuracy: 60.56. ----
+Processed test images:  73%|██████████████████████████████████████████████████████████████████▎                        | 5000/6862 [18:51<06:53,  4.50it/s]---- TDA's test accuracy: 60.53. ----
+Processed test images:  87%|███████████████████████████████████████████████████████████████████████████████▌           | 6000/6862 [22:35<03:15,  4.40it/s]---- TDA's test accuracy: 60.64. ----
+Processed test images: 100%|███████████████████████████████████████████████████████████████████████████████████████████| 6862/6862 [25:48<00:00,  4.43it/s]
+---- Final TDA's test accuracy: 60.51. ----
+[I 2025-03-25 18:49:46,043] Trial 2 finished with value: 60.50714077528417 and parameters: {'similarity_threshold': 0.9740278587984692, 'pos_shot_capacity': 8, 'pos_alpha': 1.7769053231212137, 'pos_beta': 2.876601874732679, 'neg_shot_capacity': 3, 'neg_alpha': 0.23234889159591146, 'neg_beta': 1.344484548917009, 'entropy_lower': 0.285498995913622, 'entropy_upper': 0.871269117959605, 'mask_lower': 0.07089057904323907, 'mask_upper': 0.8780894658625559}. Best is trial 2 with value: 60.50714077528417.
+Processed test images:   0%|                                                                                                      | 0/6862 [00:00<?, ?it/s]---- TDA's test accuracy: 0.00. ----
+Processed test images:  15%|█████████████▎                                                                             | 1000/6862 [04:00<21:24,  4.56it/s]---- TDA's test accuracy: 58.74. ----
+Processed test images:  29%|██████████████████████████▌                                                                | 2000/6862 [07:41<17:47,  4.55it/s]---- TDA's test accuracy: 59.22. ----
+Processed test images:  44%|███████████████████████████████████████▊                                                   | 3000/6862 [11:21<14:11,  4.54it/s]---- TDA's test accuracy: 58.65. ----
+Processed test images:  58%|█████████████████████████████████████████████████████                                      | 4000/6862 [15:02<10:36,  4.49it/s]---- TDA's test accuracy: 59.19. ----
+Processed test images:  73%|██████████████████████████████████████████████████████████████████▎                        | 5000/6862 [18:44<06:53,  4.50it/s]---- TDA's test accuracy: 59.01. ----
+Processed test images:  87%|███████████████████████████████████████████████████████████████████████████████▌           | 6000/6862 [22:25<03:13,  4.46it/s]---- TDA's test accuracy: 58.79. ----
+Processed test images: 100%|███████████████████████████████████████████████████████████████████████████████████████████| 6862/6862 [25:36<00:00,  4.47it/s]
+---- Final TDA's test accuracy: 58.80. ----
+[I 2025-03-25 19:15:22,203] Trial 3 finished with value: 58.8020985135529 and parameters: {'similarity_threshold': 0.551429830980906, 'pos_shot_capacity': 3, 'pos_alpha': 1.9028216815464492, 'pos_beta': 1.9160928379350284, 'neg_shot_capacity': 4, 'neg_alpha': 0.11433809920380042, 'neg_beta': 0.8489123194183728, 'entropy_lower': 0.2518690545060278, 'entropy_upper': 0.6283038142110016, 'mask_lower': 0.005426099438103316, 'mask_upper': 0.42595555316511124}. Best is trial 2 with value: 60.50714077528417.
+Processed test images:   0%|                                                                                                      | 0/6862 [00:00<?, ?it/s]---- TDA's test accuracy: 0.00. ----
+Processed test images:  15%|█████████████▎                                                                             | 1000/6862 [04:00<21:23,  4.57it/s]---- TDA's test accuracy: 58.24. ----
+Processed test images:  29%|██████████████████████████▌                                                                | 2000/6862 [07:40<17:51,  4.54it/s]---- TDA's test accuracy: 57.42. ----
+Processed test images:  44%|███████████████████████████████████████▊                                                   | 3000/6862 [11:21<14:26,  4.46it/s]---- TDA's test accuracy: 55.35. ----
+Processed test images:  58%|█████████████████████████████████████████████████████                                      | 4000/6862 [15:03<10:31,  4.53it/s]---- TDA's test accuracy: 53.54. ----
+Processed test images:  73%|██████████████████████████████████████████████████████████████████▎                        | 5000/6862 [18:44<06:48,  4.56it/s]---- TDA's test accuracy: 53.03. ----
+Processed test images:  87%|███████████████████████████████████████████████████████████████████████████████▌           | 6000/6862 [22:26<03:09,  4.56it/s]---- TDA's test accuracy: 52.76. ----
+Processed test images: 100%|███████████████████████████████████████████████████████████████████████████████████████████| 6862/6862 [25:38<00:00,  4.46it/s]
+---- Final TDA's test accuracy: 52.62. ----
+[I 2025-03-25 19:41:00,696] Trial 4 finished with value: 52.623141941125034 and parameters: {'similarity_threshold': 0.9175250942536801, 'pos_shot_capacity': 1, 'pos_alpha': 0.24770206677339612, 'pos_beta': 5.533919139583943, 'neg_shot_capacity': 8, 'neg_alpha': 0.5037157382278775, 'neg_beta': 1.667905420995361, 'entropy_lower': 0.1266888369332761, 'entropy_upper': 0.6745956812849296, 'mask_lower': 0.0912981848295426, 'mask_upper': 0.8596999804398142}. Best is trial 2 with value: 60.50714077528417.
+Processed test images:   0%|                                                                                                      | 0/6862 [00:00<?, ?it/s]---- TDA's test accuracy: 0.00. ----
+Processed test images:  15%|█████████████▎                                                                             | 1000/6862 [04:01<21:29,  4.55it/s]---- TDA's test accuracy: 59.64. ----
+Processed test images:  29%|██████████████████████████▌                                                                | 2000/6862 [07:42<17:56,  4.52it/s]---- TDA's test accuracy: 60.52. ----
+Processed test images:  44%|███████████████████████████████████████▊                                                   | 3000/6862 [11:24<14:18,  4.50it/s]---- TDA's test accuracy: 59.75. ----
+Processed test images:  58%|█████████████████████████████████████████████████████                                      | 4000/6862 [15:05<10:34,  4.51it/s]---- TDA's test accuracy: 60.08. ----
+Processed test images:  73%|██████████████████████████████████████████████████████████████████▎                        | 5000/6862 [18:47<06:51,  4.52it/s]---- TDA's test accuracy: 60.29. ----
+Processed test images:  87%|███████████████████████████████████████████████████████████████████████████████▌           | 6000/6862 [22:29<03:13,  4.46it/s]---- TDA's test accuracy: 60.41. ----
+Processed test images: 100%|███████████████████████████████████████████████████████████████████████████████████████████| 6862/6862 [25:41<00:00,  4.45it/s]
+---- Final TDA's test accuracy: 60.39. ----
+[I 2025-03-25 20:06:42,163] Trial 5 finished with value: 60.39055668901195 and parameters: {'similarity_threshold': 0.8485494344333779, 'pos_shot_capacity': 7, 'pos_alpha': 1.9469201742779976, 'pos_beta': 7.781123568268485, 'neg_shot_capacity': 2, 'neg_alpha': 0.02760340694974306, 'neg_beta': 0.5109215552053268, 'entropy_lower': 0.4650077977004893, 'entropy_upper': 0.9690608784256227, 'mask_lower': 0.00638957744073243, 'mask_upper': 0.35939910902190675}. Best is trial 2 with value: 60.50714077528417.
+Processed test images:   0%|                                                                                                      | 0/6862 [00:00<?, ?it/s]---- TDA's test accuracy: 100.00. ----
+Processed test images:  15%|█████████████▎                                                                             | 1000/6862 [04:01<21:39,  4.51it/s]---- TDA's test accuracy: 60.04. ----
+Processed test images:  29%|██████████████████████████▌                                                                | 2000/6862 [07:41<17:53,  4.53it/s]---- TDA's test accuracy: 58.17. ----
+Processed test images:  44%|███████████████████████████████████████▊                                                   | 3000/6862 [11:22<14:03,  4.58it/s]---- TDA's test accuracy: 55.95. ----
+Processed test images:  58%|█████████████████████████████████████████████████████                                      | 4000/6862 [15:03<10:32,  4.53it/s]---- TDA's test accuracy: 54.31. ----
+Processed test images:  73%|██████████████████████████████████████████████████████████████████▎                        | 5000/6862 [18:44<06:46,  4.58it/s]---- TDA's test accuracy: 52.49. ----
+Processed test images:  87%|███████████████████████████████████████████████████████████████████████████████▌           | 6000/6862 [22:25<03:11,  4.50it/s]---- TDA's test accuracy: 51.22. ----
+Processed test images: 100%|███████████████████████████████████████████████████████████████████████████████████████████| 6862/6862 [25:36<00:00,  4.47it/s]
+---- Final TDA's test accuracy: 50.23. ----
+[I 2025-03-25 20:32:18,580] Trial 6 finished with value: 50.233168172544445 and parameters: {'similarity_threshold': 0.5608069284203093, 'pos_shot_capacity': 3, 'pos_alpha': 1.1001332000972057, 'pos_beta': 7.0141996227942025, 'neg_shot_capacity': 10, 'neg_alpha': 0.5362668876434322, 'neg_beta': 1.2741403942205782, 'entropy_lower': 0.22517580017896444, 'entropy_upper': 0.5601654389344366, 'mask_lower': 0.0666351033731513, 'mask_upper': 0.6525200611370277}. Best is trial 2 with value: 60.50714077528417.
+Processed test images:   0%|                                                                                                      | 0/6862 [00:00<?, ?it/s]---- TDA's test accuracy: 100.00. ----
+Processed test images:  15%|█████████████▎                                                                             | 1000/6862 [04:19<21:33,  4.53it/s]---- TDA's test accuracy: 57.24. ----
+Processed test images:  29%|██████████████████████████▌                                                                | 2000/6862 [09:11<23:04,  3.51it/s]---- TDA's test accuracy: 57.37. ----
+Processed test images:  44%|███████████████████████████████████████▊                                                   | 3000/6862 [14:06<18:28,  3.49it/s]---- TDA's test accuracy: 59.11. ----
+Processed test images:  58%|█████████████████████████████████████████████████████                                      | 4000/6862 [18:49<13:32,  3.52it/s]---- TDA's test accuracy: 59.04. ----
+Processed test images:  73%|██████████████████████████████████████████████████████████████████▎                        | 5000/6862 [23:17<08:57,  3.46it/s]---- TDA's test accuracy: 59.25. ----
+Processed test images:  87%|███████████████████████████████████████████████████████████████████████████████▌           | 6000/6862 [27:38<04:14,  3.39it/s]---- TDA's test accuracy: 59.11. ----
+Processed test images: 100%|███████████████████████████████████████████████████████████████████████████████████████████| 6862/6862 [31:45<00:00,  3.60it/s]
+---- Final TDA's test accuracy: 59.34. ----
+[I 2025-03-25 21:04:04,175] Trial 7 finished with value: 59.34129991256194 and parameters: {'similarity_threshold': 0.8821643374830842, 'pos_shot_capacity': 7, 'pos_alpha': 1.3482657177757005, 'pos_beta': 1.6017442552119512, 'neg_shot_capacity': 2, 'neg_alpha': 0.7789839669015366, 'neg_beta': 1.0796507656013699, 'entropy_lower': 0.0612255687884245, 'entropy_upper': 0.7208981354217716, 'mask_lower': 0.08337345252019528, 'mask_upper': 0.9870410296665866}. Best is trial 2 with value: 60.50714077528417.
+Processed test images:   0%|                                                                                                      | 0/6862 [00:00<?, ?it/s]---- TDA's test accuracy: 0.00. ----
+Processed test images:   9%|████████▍                                                                                   | 633/6862 [03:26<34:31,  3.01it/s]wandb: Network error (ProxyError), entering retry loop.
+Processed test images:  15%|█████████████▎                                                                             | 1000/6862 [05:16<29:07,  3.35it/s]---- TDA's test accuracy: 53.45. ----
+Processed test images:  29%|██████████████████████████▌                                                                | 2000/6862 [09:55<17:45,  4.56it/s]---- TDA's test accuracy: 46.98. ----
+Processed test images:  44%|███████████████████████████████████████▊                                                   | 3000/6862 [14:41<18:02,  3.57it/s]---- TDA's test accuracy: 42.75. ----
+Processed test images:  58%|█████████████████████████████████████████████████████                                      | 4000/6862 [19:30<09:42,  4.91it/s]---- TDA's test accuracy: 39.17. ----
+Processed test images:  73%|██████████████████████████████████████████████████████████████████▎                        | 5000/6862 [24:20<08:55,  3.47it/s]---- TDA's test accuracy: 36.39. ----
+Processed test images:  87%|███████████████████████████████████████████████████████████████████████████████▌           | 6000/6862 [29:05<04:36,  3.11it/s]---- TDA's test accuracy: 34.58. ----
+Processed test images: 100%|███████████████████████████████████████████████████████████████████████████████████████████| 6862/6862 [33:05<00:00,  3.46it/s]
+---- Final TDA's test accuracy: 33.18. ----
+[I 2025-03-25 21:37:09,970] Trial 8 finished with value: 33.18274555523171 and parameters: {'similarity_threshold': 0.7042299458651948, 'pos_shot_capacity': 2, 'pos_alpha': 1.1479098134699184, 'pos_beta': 2.147013751342477, 'neg_shot_capacity': 2, 'neg_alpha': 0.138847106596696, 'neg_beta': 0.10496239828778417, 'entropy_lower': 0.2287106716055085, 'entropy_upper': 0.6525777721387975, 'mask_lower': 0.00024488912002247344, 'mask_upper': 0.4255736992639393}. Best is trial 2 with value: 60.50714077528417.
+Processed test images:   0%|                                                                                                      | 0/6862 [00:00<?, ?it/s]---- TDA's test accuracy: 0.00. ----
+Processed test images:  15%|█████████████▎                                                                             | 1000/6862 [04:59<30:06,  3.25it/s]---- TDA's test accuracy: 58.54. ----
+Processed test images:  29%|██████████████████████████▌                                                                | 2000/6862 [09:42<23:52,  3.39it/s]---- TDA's test accuracy: 58.97. ----
+Processed test images:  44%|███████████████████████████████████████▊                                                   | 3000/6862 [14:35<19:35,  3.29it/s]---- TDA's test accuracy: 58.65. ----
+Processed test images:  48%|███████████████████████████████████████████▋                                               | 3296/6862 [15:49<12:00,  4.95it/s] 
