@@ -57,17 +57,17 @@ class CacheMonitor:
 
 
 # ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
-        # # 记录每个监控类别的最大和最小熵值
-        # for cls in self.monitored_classes:
-        #     wandb.log({
-        #         f"{self.dataset_name}/{self.cache_type}_cache/class_{cls}/max_entropy": self.entropy_stats[cls]['max'],
-        #         f"{self.dataset_name}/{self.cache_type}_cache/class_{cls}/min_entropy": self.entropy_stats[cls]['min'],
-        #     }, step=step)
+        # 记录每个监控类别的最大和最小熵值
+        for cls in self.monitored_classes:
+            wandb.log({
+                f"{self.dataset_name}/{self.cache_type}_cache/class_{cls}/max_entropy": self.entropy_stats[cls]['max'],
+                f"{self.dataset_name}/{self.cache_type}_cache/class_{cls}/min_entropy": self.entropy_stats[cls]['min'],
+            }, step=step)
 
-        # # 记录累计替换次数
-        # wandb.log({
-        #     f"{self.dataset_name}/{self.cache_type}_cache/cumulative_replaces": self.total_replacements
-        # }, step=step)
+        # 记录累计替换次数
+        wandb.log({
+            f"{self.dataset_name}/{self.cache_type}_cache/cumulative_replaces": self.total_replacements
+        }, step=step)
 # ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
 
 
@@ -259,9 +259,9 @@ def run_test_tda(pos_cfg, neg_cfg, loader, clip_model, clip_weights, dataset_nam
             step = i + 1
 
 # ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
-            # wandb.log({
-            #     "Averaged test accuracy": sum(accuracies)/len(accuracies),
-            # }, step=step)
+            wandb.log({
+                "Averaged test accuracy": sum(accuracies)/len(accuracies),
+            }, step=step)
 # ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
             
             if pos_monitor:
@@ -370,32 +370,31 @@ def main():
 
             
 # ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
-        # acc = run_test_tda(cfg['positive'], cfg['negative'], test_loader, clip_model, clip_weights, dataset_name, 20)
+        acc = run_test_tda(default_cfg['positive'], default_cfg['negative'], test_loader, clip_model, clip_weights, dataset_name, 20)
 
-        # if args.wandb:
-        #     wandb.log({f"{dataset_name}": acc})
-        #     run.finish()
+        if args.wandb:
+            wandb.log({f"{dataset_name}": acc})
+            run.finish()
 # ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
 
 
 
+# ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+        # # NEW: Create and run Optuna study
+        # study = optuna.create_study(direction='maximize')
+        # study.optimize(
+        #     lambda trial: objective(trial, default_cfg, test_loader, clip_model, clip_weights, dataset_name, args),
+        #     n_trials=50  # Number of trials, adjustable
+        # )
 
-        # NEW: Create and run Optuna study
-        study = optuna.create_study(direction='maximize')
-        study.optimize(
-            lambda trial: objective(trial, default_cfg, test_loader, clip_model, clip_weights, dataset_name, args),
-            n_trials=50  # Number of trials, adjustable
-        )
+        # # Log best results
+        # print(f"Best parameters for {dataset_name}: {study.best_params}")
+        # print(f"Best accuracy for {dataset_name}: {study.best_value}")
 
-        # Log best results
-        print(f"Best parameters for {dataset_name}: {study.best_params}")
-        print(f"Best accuracy for {dataset_name}: {study.best_value}")
-
-        if args.wandb:
-            wandb.log({f"{dataset_name}_best_acc": study.best_value})
-            run.finish()
-
-
+        # if args.wandb:
+        #     wandb.log({f"{dataset_name}_best_acc": study.best_value})
+        #     run.finish()
+# ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
 
 
 
