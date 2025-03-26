@@ -364,7 +364,7 @@ def main():
 
         if args.wandb:
             run_name = f"{dataset_name}"
-            run = wandb.init(project="TDA-EXPERIMENT0325-2", config=default_cfg, group=group_name, name=run_name)
+            run = wandb.init(project="TDA-EXPERIMENT0326", config=default_cfg, group=group_name, name=run_name)
 
 
 
