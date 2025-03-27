@@ -214,7 +214,7 @@ def compute_cache_logits(image_features, cache, alpha, beta, clip_weights, neg_m
         return alpha * cache_logits
 
 
-def run_test_tda(pos_cfg, neg_cfg, loader, clip_model, clip_weights, dataset_name, max_classes=20, pos_similarity_threshold=0.9, neg_similarity_threshold=0.9):
+def run_test_tda(pos_cfg, neg_cfg, loader, clip_model, clip_weights, dataset_name, max_classes=20, pos_similarity_threshold=0.9, neg_similarity_threshold=0.8):
     """Run test-time adaptation on the given dataset."""
     with torch.no_grad():
         pos_cache, neg_cache, accuracies = {}, {}, []
@@ -364,7 +364,7 @@ def main():
 
         if args.wandb:
             run_name = f"{dataset_name}"
-            run = wandb.init(project="TDA-EXPERIMENT0326", config=default_cfg, group=group_name, name=run_name)
+            run = wandb.init(project="TDA-EXPERIMENT0327", config=default_cfg, group=group_name, name=run_name)
 
 
 
