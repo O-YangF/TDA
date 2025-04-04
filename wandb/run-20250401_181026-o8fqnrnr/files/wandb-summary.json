@@ -1,0 +1,1 @@
+{"_wandb":{"runtime":5348},"_step":3,"_runtime":5348.587046882,"_timestamp":1.7435075742158232e+09,"pos_similarity_threshold":0.8515121313561128,"neg_similarity_threshold":0.9599536738803011,"trial":3,"pos_shot_capacity":4,"accuracy":68.506,"neg_shot_capacity":7}

@@ -1,0 +1,1 @@
+{"pos_similarity_threshold":0.9438667167253403,"trial":19,"_step":19,"_runtime":11011.619686101,"pos_shot_capacity":10,"_wandb":{"runtime":11011},"_timestamp":1.7432332588238668e+09,"neg_similarity_threshold":0.9016549455725216,"R_best_acc":81.40619793402199,"neg_shot_capacity":9,"accuracy":79.7400866377874}

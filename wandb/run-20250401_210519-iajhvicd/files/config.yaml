@@ -1,0 +1,51 @@
+_wandb:
+    value:
+        cli_version: 0.19.8
+        m: []
+        python_version: 3.11.11
+        t:
+            "1":
+                - 1
+                - 35
+                - 41
+                - 51
+                - 55
+            "2":
+                - 1
+                - 35
+                - 41
+                - 51
+                - 55
+            "3":
+                - 2
+                - 13
+                - 16
+                - 23
+                - 55
+                - 61
+            "4": 3.11.11
+            "5": 0.19.8
+            "8":
+                - 5
+            "12": 0.19.8
+            "13": linux-x86_64
+negative:
+    value:
+        alpha: 0.117
+        beta: 1
+        enabled: true
+        entropy_threshold:
+            lower: 0.2
+            upper: 0.5
+        mask_threshold:
+            lower: 0.03
+            upper: 1
+        neg_similarity_threshold: 0.7798426687512876
+        shot_capacity: 3
+positive:
+    value:
+        alpha: 2
+        beta: 5
+        enabled: true
+        pos_similarity_threshold: 0.8161094964193415
+        shot_capacity: 5

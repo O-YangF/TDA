@@ -3,9 +3,10 @@
 # --- Positive Cache Configuration ---
 positive:
   enabled: True
-  shot_capacity: 3
+  shot_capacity: 2
   alpha: 2.0
   beta: 5.0 
+  pos_similarity_threshold: 0.91
 
 # --- Negative Cache Configuration ---
 negative:
@@ -13,6 +14,7 @@ negative:
   shot_capacity: 2
   alpha: 0.117
   beta: 1.0
+  neg_similarity_threshold: 0.81
   entropy_threshold:
     lower: 0.2
     upper: 0.5 

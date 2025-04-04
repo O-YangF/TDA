@@ -23,58 +23,52 @@ class CacheMonitor:
         self.history = deque(maxlen=max_history)  # 历史记录
         self.entropy_stats = defaultdict(lambda: {'max': -np.inf, 'min': np.inf})  # 熵统计
         self.total_replacements = 0    # 累计替换次数
-        
+
+
+# ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
     def record(self, old_cls, new_cls, old_entropy, new_entropy):
-        # 如果有替换操作，增加计数器
-        if old_cls is not None:
-            self.total_replacements += 1
+        return
+    #     # 如果有替换操作，增加计数器
+    #     if old_cls is not None:
+    #         self.total_replacements += 1
 
-        # 动态收集前 max_classes 个不同类别
-        if new_cls not in self.monitored_classes and len(self.monitored_classes) < self.max_classes:
-            self.monitored_classes.append(new_cls)
+    #     # 动态收集前 max_classes 个不同类别
+    #     if new_cls not in self.monitored_classes and len(self.monitored_classes) < self.max_classes:
+    #         self.monitored_classes.append(new_cls)
+    #     # 只记录属于监控类别的熵值
+    #     if new_cls in self.monitored_classes:
+    #         record = {
+    #             'old_class': old_cls,
+    #             'new_class': new_cls,
+    #             'old_entropy': old_entropy,
+    #             'new_entropy': new_entropy,
+    #             'timestamp': datetime.now().isoformat()
+    #         }
+    #         self.history.append(record)
+    #         self._update_entropy(new_cls, new_entropy)
 
-        # 只记录属于监控类别的熵值
-        if new_cls in self.monitored_classes:
-            record = {
-                'old_class': old_cls,
-                'new_class': new_cls,
-                'old_entropy': old_entropy,
-                'new_entropy': new_entropy,
-                'timestamp': datetime.now().isoformat()
-            }
-            self.history.append(record)
-            self._update_entropy(new_cls, new_entropy)
-        
-    def _update_entropy(self, cls, entropy):
-        # 更新指定类别的最大和最小熵值
-        self.entropy_stats[cls]['max'] = max(self.entropy_stats[cls]['max'], entropy)
-        self.entropy_stats[cls]['min'] = min(self.entropy_stats[cls]['min'], entropy)
+    #     def _update_entropy(self, cls, entropy):
+    #     # 更新指定类别的最大和最小熵值
+    #     self.entropy_stats[cls]['max'] = max(self.entropy_stats[cls]['max'], entropy)
+    #     self.entropy_stats[cls]['min'] = min(self.entropy_stats[cls]['min'], entropy)
         
     def wandb_log(self, step):
-        if not self.history:
-            return
-        
+        return
+    #     if not self.history:
+    #         return   
 
+    #     # 记录每个监控类别的最大和最小熵值
+    #     for cls in self.monitored_classes:
+    #         wandb.log({
+    #             f"{self.dataset_name}/{self.cache_type}_cache/class_{cls}/max_entropy": self.entropy_stats[cls]['max'],
+    #             f"{self.dataset_name}/{self.cache_type}_cache/class_{cls}/min_entropy": self.entropy_stats[cls]['min'],
+    #         }, step=step)
 
+    #     # 记录累计替换次数
+    #     wandb.log({
+    #         f"{self.dataset_name}/{self.cache_type}_cache/cumulative_replaces": self.total_replacements
+    #     }, step=step)
 # ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
-        # 记录每个监控类别的最大和最小熵值
-        for cls in self.monitored_classes:
-            wandb.log({
-                f"{self.dataset_name}/{self.cache_type}_cache/class_{cls}/max_entropy": self.entropy_stats[cls]['max'],
-                f"{self.dataset_name}/{self.cache_type}_cache/class_{cls}/min_entropy": self.entropy_stats[cls]['min'],
-            }, step=step)
-
-        # 记录累计替换次数
-        wandb.log({
-            f"{self.dataset_name}/{self.cache_type}_cache/cumulative_replaces": self.total_replacements
-        }, step=step)
-# ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
-
-
-
-    def get_monitored_classes(self):
-        # 返回当前监控的类别列表
-        return self.monitored_classes
 
 
 def get_arguments():
@@ -214,8 +208,18 @@ def compute_cache_logits(image_features, cache, alpha, beta, clip_weights, neg_m
         return alpha * cache_logits
 
 
-def run_test_tda(pos_cfg, neg_cfg, loader, clip_model, clip_weights, dataset_name, max_classes=20, pos_similarity_threshold=0.9, neg_similarity_threshold=0.9):
+def run_test_tda(pos_cfg, neg_cfg, loader, clip_model, clip_weights, dataset_name, max_classes=20, pos_similarity_threshold=0.85, neg_similarity_threshold=0.77):
     """Run test-time adaptation on the given dataset."""
+
+    if 'pos_similarity_threshold' in pos_cfg:
+        pos_similarity_threshold = pos_cfg['pos_similarity_threshold']
+        print(f"Using provided pos_similarity_threshold = {pos_similarity_threshold}")
+
+    if 'neg_similarity_threshold' in neg_cfg:
+        neg_similarity_threshold = neg_cfg['neg_similarity_threshold']
+        print(f"Using provided neg_similarity_threshold = {neg_similarity_threshold}")
+
+
     with torch.no_grad():
         pos_cache, neg_cache, accuracies = {}, {}, []
         pos_monitor = CacheMonitor("positive", dataset_name, max_classes) if pos_cfg['enabled'] else None
@@ -260,17 +264,22 @@ def run_test_tda(pos_cfg, neg_cfg, loader, clip_model, clip_weights, dataset_nam
 
 # ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
             wandb.log({
-                "Averaged test accuracy": sum(accuracies)/len(accuracies),
+                f"Averaged test accuracy": sum(accuracies)/len(accuracies),
             }, step=step)
 # ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
             
-            if pos_monitor:
-                pos_monitor.wandb_log(step)
-            if neg_monitor:
-                neg_monitor.wandb_log(step)
+# ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+            # if pos_monitor:
+            #     pos_monitor.wandb_log(step)
+            # if neg_monitor:
+            #     neg_monitor.wandb_log(step)
+# ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
 
             if i%1000==0:
                 print(f"---- TDA's test accuracy: {sum(accuracies)/len(accuracies):.2f}. ----")
+
+            # if i == 30000:
+            #     break
                 
         final_acc = sum(accuracies)/len(accuracies)
         print(f"---- Final TDA's test accuracy: {final_acc:.2f}. ----")   
@@ -281,30 +290,30 @@ def objective(trial, default_cfg, test_loader, clip_model, clip_weights, dataset
     cfg = default_cfg.copy()
 
     # Suggest hyperparameter values
-    pos_similarity_threshold = trial.suggest_float('pos_similarity_threshold', 0.5, 1.0)  # 正缓存阈值
-    neg_similarity_threshold = trial.suggest_float('neg_similarity_threshold', 0.5, 1.0)  # 负缓存阈值
-    pos_shot_capacity = trial.suggest_int('pos_shot_capacity', 1, 10)
-    pos_alpha = trial.suggest_float('pos_alpha', 0.1, 2.0)
-    pos_beta = trial.suggest_float('pos_beta', 1.0, 10.0)
-    neg_shot_capacity = trial.suggest_int('neg_shot_capacity', 1, 10)
-    neg_alpha = trial.suggest_float('neg_alpha', 0.01, 1.0)
-    neg_beta = trial.suggest_float('neg_beta', 0.1, 2.0)
-    entropy_lower = trial.suggest_float('entropy_lower', 0.0, 0.5)
-    entropy_upper = trial.suggest_float('entropy_upper', 0.5, 1.0)
-    mask_lower = trial.suggest_float('mask_lower', 0.0, 0.1)
-    mask_upper = trial.suggest_float('mask_upper', 0.1, 1.0)
+    pos_similarity_threshold = trial.suggest_float('pos_similarity_threshold', 0.7, 1.0)  # 正缓存阈值
+    neg_similarity_threshold = trial.suggest_float('neg_similarity_threshold', 0.7, 1.0)  # 负缓存阈值
+    pos_shot_capacity = trial.suggest_int('pos_shot_capacity', 2, 10)
+    # pos_alpha = trial.suggest_float('pos_alpha', 0.1, 2.0)
+    # pos_beta = trial.suggest_float('pos_beta', 1.0, 10.0)
+    neg_shot_capacity = trial.suggest_int('neg_shot_capacity', 2, 10)
+    # neg_alpha = trial.suggest_float('neg_alpha', 0.01, 1.0)
+    # neg_beta = trial.suggest_float('neg_beta', 0.1, 2.0)
+    # entropy_lower = trial.suggest_float('entropy_lower', 0.0, 0.5)
+    # entropy_upper = trial.suggest_float('entropy_upper', 0.5, 1.0)
+    # mask_lower = trial.suggest_float('mask_lower', 0.0, 0.1)
+    # mask_upper = trial.suggest_float('mask_upper', 0.1, 1.0)
 
     # Update configuration
     cfg['positive']['shot_capacity'] = pos_shot_capacity
-    cfg['positive']['alpha'] = pos_alpha
-    cfg['positive']['beta'] = pos_beta
+    # cfg['positive']['alpha'] = pos_alpha
+    # cfg['positive']['beta'] = pos_beta
     cfg['negative']['shot_capacity'] = neg_shot_capacity
-    cfg['negative']['alpha'] = neg_alpha
-    cfg['negative']['beta'] = neg_beta
-    cfg['negative']['entropy_threshold']['lower'] = entropy_lower
-    cfg['negative']['entropy_threshold']['upper'] = entropy_upper
-    cfg['negative']['mask_threshold']['lower'] = mask_lower
-    cfg['negative']['mask_threshold']['upper'] = mask_upper
+    # cfg['negative']['alpha'] = neg_alpha
+    # cfg['negative']['beta'] = neg_beta
+    # cfg['negative']['entropy_threshold']['lower'] = entropy_lower
+    # cfg['negative']['entropy_threshold']['upper'] = entropy_upper
+    # cfg['negative']['mask_threshold']['lower'] = mask_lower
+    # cfg['negative']['mask_threshold']['upper'] = mask_upper
 
     # Run model with updated config
     acc = run_test_tda(
@@ -319,15 +328,15 @@ def objective(trial, default_cfg, test_loader, clip_model, clip_weights, dataset
             "pos_similarity_threshold": pos_similarity_threshold,
             "neg_similarity_threshold": neg_similarity_threshold,
             "pos_shot_capacity": pos_shot_capacity,
-            "pos_alpha": pos_alpha,
-            "pos_beta": pos_beta,
+            # "pos_alpha": pos_alpha,
+            # "pos_beta": pos_beta,
             "neg_shot_capacity": neg_shot_capacity,
-            "neg_alpha": neg_alpha,
-            "neg_beta": neg_beta,
-            "entropy_lower": entropy_lower,
-            "entropy_upper": entropy_upper,
-            "mask_lower": mask_lower,
-            "mask_upper": mask_upper,
+            # "neg_alpha": neg_alpha,
+            # "neg_beta": neg_beta,
+            # "entropy_lower": entropy_lower,
+            # "entropy_upper": entropy_upper,
+            # "mask_lower": mask_lower,
+            # "mask_upper": mask_upper,
             "accuracy": acc
         }, step=trial.number)
 
@@ -364,7 +373,7 @@ def main():
 
         if args.wandb:
             run_name = f"{dataset_name}"
-            run = wandb.init(project="TDA-EXPERIMENT0326", config=default_cfg, group=group_name, name=run_name)
+            run = wandb.init(project="TDA-EXPERIMENT0403-test", config=default_cfg, group=group_name, name=run_name)
 
 
 

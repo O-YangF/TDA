@@ -1,0 +1,1 @@
+{"neg_similarity_threshold":0.8481795569855999,"pos_similarity_threshold":0.9159793830333041,"trial":0,"pos_shot_capacity":5,"_timestamp":1.7435014649547575e+09,"_wandb":{"runtime":50},"neg_shot_capacity":4,"accuracy":67.64411862712429,"_runtime":50.759306058,"_step":0}
