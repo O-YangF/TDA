@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Configuration for TDA Hyperparameters
 
 # --- Positive Cache Configuration ---
@@ -20,4 +21,26 @@ negative:
     upper: 0.5 
   mask_threshold:
     lower: 0.03
+=======
+# Configuration for TDA Hyperparameters
+
+# --- Positive Cache Configuration ---
+positive:
+  enabled: True
+  shot_capacity: 3
+  alpha: 1.0
+  beta: 8.0 
+
+# --- Negative Cache Configuration ---
+negative:
+  enabled: True
+  shot_capacity: 2
+  alpha: 0.117
+  beta: 1.0
+  entropy_threshold:
+    lower: 0.2
+    upper: 0.5 
+  mask_threshold:
+    lower: 0.03
+>>>>>>> dbba8e6341b254ea826b5e2215558f268e46f67e
     upper: 1.0

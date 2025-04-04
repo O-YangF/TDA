@@ -188,7 +188,6 @@ def update_cache(cache, pred, features_loss, shot_capacity, monitor=None, includ
     return cache
 
 
-
 def compute_cache_logits(image_features, cache, alpha, beta, clip_weights, neg_mask_thresholds=None):
     """Compute logits using positive/negative cache."""
     with torch.no_grad():
